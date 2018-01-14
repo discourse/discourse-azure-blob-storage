@@ -1,0 +1,9 @@
+plugins:
+  azure_blob_storage_enabled:
+    default: false
+  azure_blob_storage_account_name:
+    default: ''
+  azure_blob_storage_access_key:
+    default: ''
+  azure_blob_storage_container_name:
+    default: ''

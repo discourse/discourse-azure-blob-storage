@@ -1,0 +1,6 @@
+en:
+  site_settings:
+    azure_blob_storage_enabled: "Enable the azure blob storage plugin. After enabling this, uploads will be stored in your blob container."
+    azure_blob_storage_account_name: "Your Azure Blob account name"
+    azure_blob_storage_access_key: "Your key"
+    azure_blob_storage_container_name: "Container name"
