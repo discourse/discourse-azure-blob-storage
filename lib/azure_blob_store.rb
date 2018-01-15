@@ -29,8 +29,13 @@ module FileStore
       return unless has_been_uploaded?(url)
       source_blob_name = path
       # copy the file in tombstone
-      blob_service.copy_blob(azure_blob_container, "/tombstone/#{path}", azure_blob_container,
-                           source_blob_name)
+      blob_service.copy_blob(
+              azure_blob_container,
+              "/tombstone/#{path}",
+              azure_blob_container,
+              source_blob_name,
+              metadata: {'removed_at': DateTime.now}
+              )
       # delete the file
       blob_service.delete_blob(azure_blob_container, source_blob_name)
     end
@@ -55,8 +60,14 @@ module FileStore
     end
 
     def purge_tombstone(grace_period)
-      blob_service.list_containers(prefix: "/tombstone")
-      # to be implemented
+      blob_list = blob_service.list_blobs(azure_blob_container, {prefix: "tombstone"})
+      blob_list.each do |blob|
+        removal_date = blob_service.get_blob_metadata(azure_blob_container, blob.name).metadata['removed_at']
+        age = (Date.today - Date.parse(removal_date)).to_i
+        if age > grace_period
+          blob_service.delete_blob(azure_blob_container, blob.name)
+        end
+      end
     end
 
     def path_for(upload)
