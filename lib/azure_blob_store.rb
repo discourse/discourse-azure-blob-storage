@@ -9,7 +9,7 @@ module FileStore
 
     def store_upload(file, upload, content_type = nil)
       path = get_path_for_upload(upload)
-      store_file(file, path, content_type: content_type)
+      store_file(file, path, content_type: content_type, filename: upload.original_filename, cache_locally: true)
     end
 
     def store_optimized_image(file, optimized_image, content_type = nil)
@@ -18,9 +18,12 @@ module FileStore
     end
 
     def store_file(file, path, opts = {})
+      filename = opts[:filename].presence || File.basename(path)
+      cache_file(file, File.basename(path)) if opts[:cache_locally]
       options = {
         content_type: opts[:content_type].presence || MiniMime.lookup_by_filename(filename)&.content_type
       }
+      options[:content_disposition] = "attachment; filename=\"#{filename}\"" unless FileHelper.is_image?(filename)
       blob_service.create_block_blob(azure_blob_container, path, file, options)
       "#{absolute_base_url}/#{azure_blob_container}/#{path}"
     end
@@ -52,7 +55,7 @@ module FileStore
 
     def absolute_base_url
       storage_account_name = SiteSetting.azure_blob_storage_account_name
-      "//#{storage_account_name}.blob.core.windows.net/"
+      "//#{storage_account_name}.blob.core.windows.net"
     end
 
     def blob_service
