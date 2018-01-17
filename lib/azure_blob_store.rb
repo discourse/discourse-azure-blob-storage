@@ -47,6 +47,10 @@ module FileStore
       return false if url.blank?
       base_hostname = URI.parse(absolute_base_url).hostname
       return true if url[base_hostname]
+
+      return false if SiteSetting.azure_cdn_url.blank?
+      cdn_hostname = URI.parse(SiteSetting.azure_cdn_url || "").hostname
+      cdn_hostname.presence && url[cdn_hostname]
     end
 
     def azure_blob_container
@@ -76,6 +80,12 @@ module FileStore
     def path_for(upload)
       url = upload.try(:url)
       FileStore::LocalStore.new.path_for(upload) if url && url[/^\/[^\/]/]
+    end
+
+    def cdn_url(url)
+      return url if SiteSetting.azure_cdn_url.blank?
+      schema = url[/^(https?:)?\/\//, 1]
+      url.sub("#{schema}#{absolute_base_url}", SiteSetting.azure_cdn_url)
     end
 
     def external?

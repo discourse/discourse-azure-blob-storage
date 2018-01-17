@@ -16,6 +16,16 @@ enabled_site_setting :azure_blob_storage_enabled
 
 after_initialize do
 
+  SiteSetting::Upload.class_eval do
+    def self.s3_cdn_url
+      SiteSetting.azure_cdn_url
+    end
+
+    def self.enable_s3_uploads
+      true
+    end
+  end
+
   Discourse.module_eval do
     def self.store
       @azure_blob_loaded ||= require './plugins/discourse-azure-blob-storage/lib/azure_blob_store'
