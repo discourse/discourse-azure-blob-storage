@@ -2,6 +2,7 @@
 # about: Azure Blob storage
 # version: 0.0.1
 # authors: Maja
+# url: https://github.com/majakomel/discourse-azure-blob-storage
 
 require "file_store/base_store"
 
