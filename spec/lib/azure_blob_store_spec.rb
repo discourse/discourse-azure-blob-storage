@@ -10,16 +10,13 @@ describe FileStore::AzureStore do
   let(:optimized_image_file) { file_from_fixtures("logo.png") }
   let(:azure_account) { "azure-blob-account-name" }
   let(:blob_container) { "azure-blob-container-name" }
-  let(:blob_service) { Azure::Blob::BlobService.new }
+  let(:blob_service) { Azure::Blob::BlobService }
 
   before(:each) do
     SiteSetting.azure_blob_storage_account_name = "azure-blob-account-name"
     SiteSetting.azure_blob_storage_access_key = SecureRandom.base64
     SiteSetting.azure_blob_storage_container_name = "azure-blob-container-name"
     SiteSetting.azure_blob_storage_enabled = true
-
-    Azure.config.storage_account_name = SiteSetting.azure_blob_storage_account_name
-    Azure.config.storage_access_key = SiteSetting.azure_blob_storage_access_key
   end
 
   context 'uploading to azure blob' do
@@ -31,7 +28,6 @@ describe FileStore::AzureStore do
       it "returns an absolute schemaless url" do
         store.expects(:get_depth_for).with(upload.id).returns(0)
         stub_request(:put, "https://#{azure_account}.blob.core.windows.net/#{blob_container}/original/1X/#{upload.sha1}.png")
-
         expect(store.store_upload(uploaded_file, upload)).to eq(
           "//azure-blob-account-name.blob.core.windows.net/azure-blob-container-name/original/1X/#{upload.sha1}.png"
         )
@@ -41,10 +37,8 @@ describe FileStore::AzureStore do
     describe "#store_optimized_image" do
       it "returns an absolute schemaless url" do
         store.expects(:get_depth_for).with(optimized_image.upload.id).returns(0)
-
         path = "optimized/1X/#{optimized_image.upload.sha1}_#{OptimizedImage::VERSION}_100x200.png"
         stub_request(:put, "https://#{azure_account}.blob.core.windows.net/#{blob_container}/#{path}")
-
         expect(store.store_optimized_image(optimized_image_file, optimized_image)).to eq(
           "//azure-blob-account-name.blob.core.windows.net/azure-blob-container-name/#{path}"
         )
@@ -60,10 +54,9 @@ describe FileStore::AzureStore do
     describe "#remove_upload" do
       it "removes the file from azure storage with the right paths" do
         store.expects(:get_depth_for).with(upload.id).returns(0)
-
-        stub_request(:put, "https://azure-blob-account-name.blob.core.windows.net/azure-blob-container-name/tombstone/original/1X/512de810888d16dc17f6750ebe5d882c69f5dca8.png")
-        stub_request(:delete, "https://azure-blob-account-name.blob.core.windows.net/azure-blob-container-name/original/1X/512de810888d16dc17f6750ebe5d882c69f5dca8.png")
-
+        store.expects(:has_been_uploaded?).returns(true)
+        blob_service.any_instance.expects(:copy_blob)
+        blob_service.any_instance.expects(:delete_blob)
         store.remove_upload(upload)
       end
     end
@@ -77,11 +70,10 @@ describe FileStore::AzureStore do
       end
 
       it "removes the file from Azure storage with the right paths" do
-
         store.expects(:get_depth_for).with(optimized_image.upload.id).returns(0)
-        stub_request(:put, "https://azure-blob-account-name.blob.core.windows.net/azure-blob-container-name/tombstone/optimized/1X/512de810888d16dc17f6750ebe5d882c69f5dca8_1_100x200.png")
-        stub_request(:delete, "https://azure-blob-account-name.blob.core.windows.net/azure-blob-container-name/optimized/1X/512de810888d16dc17f6750ebe5d882c69f5dca8_1_100x200.png")
-
+        store.expects(:has_been_uploaded?).returns(true)
+        blob_service.any_instance.expects(:copy_blob)
+        blob_service.any_instance.expects(:delete_blob)
         store.remove_optimized_image(optimized_image)
       end
 
@@ -113,8 +105,7 @@ describe FileStore::AzureStore do
 
   describe ".purge_tombstone" do
     it "updates tombstone lifecycle" do
-      stub_request(:get, "https://azure-blob-account-name.blob.core.windows.net/azure-blob-container-name?comp=list&prefix=tombstone&restype=container")
-
+      blob_service.any_instance.expects(:list_blobs).returns([])
       store.purge_tombstone(1.day)
     end
   end
