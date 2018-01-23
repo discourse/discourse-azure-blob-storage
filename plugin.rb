@@ -21,6 +21,7 @@ after_initialize do
     class << self
       alias_method :core_s3_cdn_url, :s3_cdn_url
       alias_method :core_enable_s3_uploads, :enable_s3_uploads
+      alias_method :core_absolute_base_url, :absolute_base_url
     end
 
     def self.s3_cdn_url
@@ -34,6 +35,11 @@ after_initialize do
     def self.enable_s3_uploads
       return true if SiteSetting.azure_blob_storage_enabled
       core_enable_s3_uploads
+    end
+
+    def self.absolute_base_url
+      return "//#{SiteSetting.azure_blob_storage_account_name}.blob.core.windows.net" if SiteSetting.azure_blob_storage_enabled
+      core_absolute_base_url
     end
   end
 
