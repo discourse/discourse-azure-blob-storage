@@ -36,9 +36,7 @@ module FileStore
               azure_blob_container,
               "/tombstone/#{path}",
               azure_blob_container,
-              source_blob_name,
-              metadata: {'removed_at': DateTime.now}
-              )
+              source_blob_name)
       # delete the file
       blob_service.delete_blob(azure_blob_container, source_blob_name)
     end
@@ -58,8 +56,7 @@ module FileStore
     end
 
     def absolute_base_url
-      storage_account_name = SiteSetting.azure_blob_storage_account_name
-      "//#{storage_account_name}.blob.core.windows.net"
+      @absolute_base_url ||= SiteSetting.Upload.absolute_base_url
     end
 
     def blob_service
@@ -69,11 +66,10 @@ module FileStore
     def purge_tombstone(grace_period)
       blob_list = blob_service.list_blobs(azure_blob_container, {prefix: "tombstone"})
       blob_list.each do |blob|
-        removal_date = blob_service.get_blob_metadata(azure_blob_container, blob.name).metadata['removed_at']
-        age = (Date.today - Date.parse(removal_date)).to_i
-        if age > grace_period
-          blob_service.delete_blob(azure_blob_container, blob.name)
-        end
+        blob_service.delete_blob(
+          azure_blob_container,
+          blob.name,
+          {if_unmodified_since: grace_period.days.ago})
       end
     end
 
