@@ -1,3 +1,3 @@
-# discourse-azure-blob-storage [WIP]
+# discourse-azure-blob-storage
 
-This plugin is still in development, install on your own responsibility.
+Find instructions on how to set it up [here](https://meta.discourse.org/t/azure-blob-storage-plugin/79392)
