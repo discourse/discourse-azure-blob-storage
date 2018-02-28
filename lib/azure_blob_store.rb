@@ -3,8 +3,11 @@ module FileStore
   class AzureStore < ::FileStore::BaseStore
 
     def initialize
-      Azure.config.storage_account_name = SiteSetting.azure_blob_storage_account_name
-      Azure.config.storage_access_key = SiteSetting.azure_blob_storage_access_key
+      # Azure.config.storage_account_name = SiteSetting.azure_blob_storage_account_name
+      # Azure.config.storage_access_key = SiteSetting.azure_blob_storage_access_key
+
+      Azure::Storage::Blob::BlobService.create(storage_account_name: SiteSetting.azure_blob_storage_account_name, storage_access_key: SiteSetting.azure_blob_storage_access_key)
+
     end
 
     def store_upload(file, upload, content_type = nil)
@@ -60,7 +63,7 @@ module FileStore
     end
 
     def blob_service
-      Azure::Blob::BlobService.new
+      Azure::Storage::Blob::BlobService.new
     end
 
     def purge_tombstone(grace_period)

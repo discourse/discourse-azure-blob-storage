@@ -8,10 +8,15 @@ require "file_store/base_store"
 
 # GEMS
 gem 'faraday_middleware', '0.11.0', {require: false}
-gem 'azure-core', '0.1.14', {require: false}
-gem 'azure-storage', '0.15.0.preview', {require: false}
-gem 'systemu', '2.6.5', {require: false}
-gem 'azure', '0.7.10'
+gem 'azure-core', '0.1.13', {require: false}
+# gem 'azure-storage', '0.15.0.preview', {require: false}
+# gem 'systemu', '2.6.5', {require: false}
+# gem 'azure', '0.7.10'
+
+gem 'azure-storage-common', '1.0.1', {require: false}
+gem 'azure-storage-blob', '1.0.1', {require: false}
+
+require 'azure/storage/blob'
 
 enabled_site_setting :azure_blob_storage_enabled
 
