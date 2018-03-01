@@ -61,8 +61,8 @@ module FileStore
     def purge_tombstone(grace_period)
       blob_list = blob_service.list_blobs(azure_blob_container, {prefix: "tombstone"})
       blob_list.each do |blob|
-        last_modified = (Date.today - Date.parse(blob.properties[:last_modified])).to_i
-        blob_service.delete_blob(azure_blob_container, blob.name) if last_modified > grace_period
+        last_modified_diff = ((Time.now.utc - Time.parse(blob.properties[:last_modified])) / 1.day).round
+        blob_service.delete_blob(azure_blob_container, blob.name) if last_modified_diff > grace_period
       end
     end
 
