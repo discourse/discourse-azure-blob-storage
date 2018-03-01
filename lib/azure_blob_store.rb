@@ -2,11 +2,6 @@ module FileStore
 
   class AzureStore < ::FileStore::BaseStore
 
-    def initialize
-      Azure.config.storage_account_name = SiteSetting.azure_blob_storage_account_name
-      Azure.config.storage_access_key = SiteSetting.azure_blob_storage_access_key
-    end
-
     def store_upload(file, upload, content_type = nil)
       path = get_path_for_upload(upload)
       store_file(file, path, content_type: content_type, filename: upload.original_filename, cache_locally: true)
@@ -60,16 +55,14 @@ module FileStore
     end
 
     def blob_service
-      Azure::Blob::BlobService.new
+      Azure::Storage::Blob::BlobService.create(storage_account_name: SiteSetting.azure_blob_storage_account_name, storage_access_key: SiteSetting.azure_blob_storage_access_key)
     end
 
     def purge_tombstone(grace_period)
       blob_list = blob_service.list_blobs(azure_blob_container, {prefix: "tombstone"})
       blob_list.each do |blob|
-        blob_service.delete_blob(
-          azure_blob_container,
-          blob.name,
-          {if_unmodified_since: grace_period.days.ago})
+        last_modified_diff = ((Time.now.utc - Time.parse(blob.properties[:last_modified])) / 1.day).round
+        blob_service.delete_blob(azure_blob_container, blob.name) if last_modified_diff > grace_period
       end
     end
 
