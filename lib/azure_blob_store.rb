@@ -18,7 +18,7 @@ module FileStore
       options = {
         content_type: opts[:content_type].presence || MiniMime.lookup_by_filename(filename)&.content_type
       }
-      options[:content_disposition] = "attachment; filename=\"#{filename}\"" unless FileHelper.is_image?(filename)
+      options[:content_disposition] = "attachment; filename*=UTF-8''#{URI.encode(filename)}" unless FileHelper.is_image?(filename)
       blob_service.create_block_blob(azure_blob_container, path, file, options)
       "#{absolute_base_url}/#{azure_blob_container}/#{path}"
     end
