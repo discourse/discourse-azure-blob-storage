@@ -1,7 +1,7 @@
 # name: discourse-azure-blob-storage
 # about: Azure Blob storage
-# version: 0.0.1
-# authors: Maja
+# version: 0.0.2
+# authors: Maja Komel
 # url: https://github.com/majakomel/discourse-azure-blob-storage
 
 require "file_store/base_store"
