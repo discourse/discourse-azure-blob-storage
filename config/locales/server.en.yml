@@ -4,4 +4,5 @@ en:
     azure_blob_storage_account_name: "Your Azure Blob account name"
     azure_blob_storage_access_key: "Your key"
     azure_blob_storage_container_name: "Container name"
-    azure_cdn_url: "Azure CDN url"
+    azure_blob_storage_cdn_url: "Azure CDN url"
+    azure_blob_storage_sas_token: "SAS token"

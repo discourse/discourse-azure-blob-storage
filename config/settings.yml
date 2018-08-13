@@ -7,6 +7,7 @@ plugins:
     default: ''
   azure_blob_storage_container_name:
     default: ''
-  azure_cdn_url:
+  azure_blob_storage_cdn_url:
     default: ''
-
+  azure_blob_storage_sas_token:
+    default: ''

@@ -1,6 +1,12 @@
+require './plugins/discourse-azure-blob-storage/lib/azure_blob_helper'
+
 module FileStore
 
   class AzureStore < ::FileStore::BaseStore
+
+    def initialize(azure_helper = nil)
+      @azure_helper = azure_helper || AzureBlobHelper.new
+    end
 
     def store_upload(file, upload, content_type = nil)
       path = get_path_for_upload(upload)
@@ -19,21 +25,14 @@ module FileStore
         content_type: opts[:content_type].presence || MiniMime.lookup_by_filename(filename)&.content_type
       }
       options[:content_disposition] = "attachment; filename*=UTF-8''#{URI.encode(filename)}" unless FileHelper.is_image?(filename)
-      blob_service.create_block_blob(azure_blob_container, path, file, options)
-      "#{absolute_base_url}/#{azure_blob_container}/#{path}"
+      @azure_helper.upload(path, file, options)
+
+      "#{absolute_base_url}/#{path}"
     end
 
     def remove_file(url, path)
       return unless has_been_uploaded?(url)
-      source_blob_name = path
-      # copy the file in tombstone
-      blob_service.copy_blob(
-              azure_blob_container,
-              "/tombstone/#{path}",
-              azure_blob_container,
-              source_blob_name)
-      # delete the file
-      blob_service.delete_blob(azure_blob_container, source_blob_name)
+      @azure_helper.move_to_tombstone(path)
     end
 
     def has_been_uploaded?(url)
@@ -41,29 +40,21 @@ module FileStore
       base_hostname = URI.parse(absolute_base_url).hostname
       return true if url[base_hostname]
 
-      return false if SiteSetting.azure_cdn_url.blank?
-      cdn_hostname = URI.parse(SiteSetting.azure_cdn_url || "").hostname
+      return false if azure_blob_storage_cdn_url.blank?
+      cdn_hostname = URI.parse(azure_blob_storage_cdn_url || "").hostname
       cdn_hostname.presence && url[cdn_hostname]
     end
 
     def azure_blob_container
-      SiteSetting.azure_blob_storage_container_name
+      GlobalSetting.use_azure? ? GlobalSetting.azure_blob_container_name : SiteSetting.azure_blob_storage_container_name
     end
 
     def absolute_base_url
       @absolute_base_url ||= SiteSetting.Upload.absolute_base_url
     end
 
-    def blob_service
-      Azure::Storage::Blob::BlobService.create(storage_account_name: SiteSetting.azure_blob_storage_account_name, storage_access_key: SiteSetting.azure_blob_storage_access_key)
-    end
-
     def purge_tombstone(grace_period)
-      blob_list = blob_service.list_blobs(azure_blob_container, {prefix: "tombstone"})
-      blob_list.each do |blob|
-        last_modified_diff = ((Time.now.utc - Time.parse(blob.properties[:last_modified])) / 1.day).round
-        blob_service.delete_blob(azure_blob_container, blob.name) if last_modified_diff > grace_period
-      end
+      @azure_helper.tombstone_cleanup(grace_period)
     end
 
     def path_for(upload)
@@ -71,10 +62,14 @@ module FileStore
       FileStore::LocalStore.new.path_for(upload) if url && url[/^\/[^\/]/]
     end
 
+    def azure_blob_storage_cdn_url
+      GlobalSetting.use_azure? ? GlobalSetting.azure_cdn_url : SiteSetting.azure_blob_storage_cdn_url
+    end
+
     def cdn_url(url)
-      return url if SiteSetting.azure_cdn_url.blank?
+      return url if azure_blob_storage_cdn_url.blank?
       schema = url[/^(https?:)?\/\//, 1]
-      url.sub("#{schema}#{absolute_base_url}", SiteSetting.azure_cdn_url)
+      url.sub("#{schema}#{absolute_base_url}", azure_blob_storage_cdn_url)
     end
 
     def external?
