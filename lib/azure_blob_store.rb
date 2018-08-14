@@ -63,7 +63,7 @@ module FileStore
     end
 
     def azure_blob_storage_cdn_url
-      GlobalSetting.use_azure? ? GlobalSetting.azure_cdn_url : SiteSetting.azure_blob_storage_cdn_url
+      GlobalSetting.use_azure? ? GlobalSetting.azure_blob_storage_cdn_url : SiteSetting.azure_blob_storage_cdn_url
     end
 
     def cdn_url(url)
