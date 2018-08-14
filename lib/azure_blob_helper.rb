@@ -46,7 +46,7 @@ class AzureBlobHelper
     service_properties = Azure::Storage::Common::Service::StorageServiceProperties.new
     service_properties.cors.cors_rules = [cors_rule]
 
-    unless rule.any?
+    unless rule.nil?
       puts "installing CORS rule"
 
       blob_service.set_service_properties(service_properties)

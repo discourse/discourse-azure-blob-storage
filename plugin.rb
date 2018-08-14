@@ -23,7 +23,7 @@ after_initialize do
   module SiteSettingUploadExtension
     def s3_cdn_url
       if  GlobalSetting.use_azure?
-        return GlobalSetting.azure_cdn_url
+        return GlobalSetting.azure_blob_storage_cdn_url
       elsif SiteSetting.azure_blob_storage_enabled
         return SiteSetting.azure_blob_storage_cdn_url
       end
@@ -84,14 +84,14 @@ after_initialize do
     alias_method :core_preload_script, :preload_script
 
     def preload_script(script)
-      if GlobalSetting.use_azure? && GlobalSetting.azure_cdn_url
+      if GlobalSetting.use_azure? && GlobalSetting.azure_blob_storage_cdn_url
         path = asset_path("#{script}.js")
 
-        if GlobalSetting.azure_cdn_url
+        if GlobalSetting.azure_blob_storage_cdn_url
           if GlobalSetting.cdn_url
-            path = path.gsub(GlobalSetting.cdn_url, GlobalSetting.azure_cdn_url)
+            path = path.gsub(GlobalSetting.cdn_url, GlobalSetting.azure_blob_storage_cdn_url)
           else
-            path = "#{GlobalSetting.azure_cdn_url}#{path}"
+            path = "#{GlobalSetting.azure_blob_storage_cdn_url}#{path}"
           end
 
           if is_brotli_req?
