@@ -46,7 +46,7 @@ module FileStore
     end
 
     def azure_blob_container
-      GlobalSetting.use_azure? ? GlobalSetting.azure_blob_container_name : SiteSetting.azure_blob_storage_container_name
+      GlobalSetting.use_azure? ? GlobalSetting.azure_blob_storage_container_name : SiteSetting.azure_blob_storage_container_name
     end
 
     def absolute_base_url

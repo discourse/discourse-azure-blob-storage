@@ -54,7 +54,7 @@ class AzureBlobHelper
   end
 
   def azure_blob_container
-    GlobalSetting.use_azure? ? GlobalSetting.azure_blob_container_name : SiteSetting.azure_blob_storage_container_name
+    GlobalSetting.use_azure? ? GlobalSetting.azure_blob_storage_container_name : SiteSetting.azure_blob_storage_container_name
   end
 
   private
@@ -72,7 +72,7 @@ class AzureBlobHelper
   end
 
   def azure_blob_sas_token
-    GlobalSetting.use_azure? ? GlobalSetting.azure_sas_token : SiteSetting.azure_blob_storage_sas_token
+    GlobalSetting.use_azure? ? GlobalSetting.azure_blob_storage_sas_token : SiteSetting.azure_blob_storage_sas_token
   end
 
   def default_azure_options
