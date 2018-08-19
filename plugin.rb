@@ -111,20 +111,21 @@ after_initialize do
 
   GlobalSetting.class_eval do
     def self.use_azure?
-      # avoid 'undefined' errors in development env when no azure related GlobalSettings defined
-      if Rails.env.development? && (!defined?(azure_blob_storage_account_name) ||
-        !defined?(azure_blob_storage_container_name) || (!defined?(azure_blob_storage_sas_token) ||
-        !defined?(azure_blob_storage_access_key)))
+      # avoid errors in when no azure related GlobalSettings defined
+      if !defined?(azure_blob_storage_account_name) &&
+        !defined?(azure_blob_storage_container_name) &&
+        (!defined?(azure_blob_storage_sas_token) ||
+        !defined?(azure_blob_storage_access_key))
         return false
+      else
+        (@use_azure ||=
+          begin
+            azure_blob_storage_account_name &&
+            azure_blob_storage_container_name && (
+              azure_blob_storage_sas_token || azure_blob_storage_access_key
+            ) ? :true : :false
+          end) == :true
       end
-
-      (@use_azure ||=
-        begin
-          azure_blob_storage_account_name &&
-          azure_blob_storage_container_name && (
-            azure_blob_storage_sas_token || azure_blob_storage_access_key
-          ) ? :true : :false
-        end) == :true
     end
   end
 end
