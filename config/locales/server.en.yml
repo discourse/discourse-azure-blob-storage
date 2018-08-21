@@ -6,3 +6,7 @@ en:
     azure_blob_storage_container_name: "Container name"
     azure_blob_storage_cdn_url: "Azure CDN url"
     azure_blob_storage_sas_token: "SAS token"
+  azure_blob_storage:
+    system_warning:
+      title: "WARNING: Azure SAS token is approaching its expiry date (%{days_left} days left)"
+      raw: "Azure shared access signature (SAS) is approaching expiry date, it will be valid for %{days_left} more days, after that uploading to Azure Blob will be broken. Please replace the SAS token with a new one as soon as possible in order to avoid the failing uploads."
