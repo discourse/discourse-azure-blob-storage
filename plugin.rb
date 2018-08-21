@@ -14,11 +14,11 @@ gem 'azure-storage-blob', '1.0.1', {require: false}
 
 require 'azure/storage/blob'
 
-
 enabled_site_setting :azure_blob_storage_enabled
 
 after_initialize do
-  require './plugins/discourse-azure-blob-storage/lib/azure_blob_helper'
+  require File.expand_path("../lib/azure_blob_helper.rb", __FILE__)
+  require File.expand_path("../jobs/scheduled/check_azure_sas_token.rb", __FILE__)
 
   module SiteSettingUploadExtension
     def s3_cdn_url
