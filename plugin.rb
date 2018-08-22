@@ -22,7 +22,7 @@ after_initialize do
 
   module SiteSettingUploadExtension
     def s3_cdn_url
-      if  GlobalSetting.use_azure?
+      if  GlobalSetting.use_azure_with_cdn?
         return GlobalSetting.azure_blob_storage_cdn_url
       elsif SiteSetting.azure_blob_storage_enabled
         return SiteSetting.azure_blob_storage_cdn_url
@@ -68,7 +68,7 @@ after_initialize do
   module DiscourseExtension
     def store
       if SiteSetting.azure_blob_storage_enabled || GlobalSetting.use_azure?
-        @azure_blob_loaded ||= require './plugins/discourse-azure-blob-storage/lib/azure_blob_store'
+        @azure_blob_loaded ||= require File.expand_path("../lib/azure_blob_store.rb", __FILE__)
         FileStore::AzureStore.new
       else
         super
@@ -84,7 +84,7 @@ after_initialize do
     alias_method :core_preload_script, :preload_script
 
     def preload_script(script)
-      if GlobalSetting.use_azure? && GlobalSetting.azure_blob_storage_cdn_url
+      if GlobalSetting.use_azure_with_cdn?
         path = asset_path("#{script}.js")
 
         if GlobalSetting.azure_blob_storage_cdn_url
@@ -126,6 +126,11 @@ after_initialize do
             ) ? :true : :false
           end) == :true
       end
+    end
+
+    def self.use_azure_with_cdn?
+      return false if !defined?(azure_blob_storage_cdn_url)
+      @use_azure_with_cdn ||= azure_blob_storage_cdn_url ? true : false
     end
   end
 end
