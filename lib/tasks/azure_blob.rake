@@ -1,6 +1,6 @@
 require 'azure/storage/blob'
 require 'azure/storage/common'
-require './plugins/discourse-azure-blob-storage/lib/azure_blob_helper'
+require File.expand_path("../../azure_blob_helper.rb", __FILE__)
 
 def azure_helper
   @azure_helper ||= AzureBlobHelper.new

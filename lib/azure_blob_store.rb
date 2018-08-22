@@ -1,4 +1,4 @@
-require './plugins/discourse-azure-blob-storage/lib/azure_blob_helper'
+require File.expand_path("../azure_blob_helper.rb", __FILE__)
 
 module FileStore
 
@@ -45,10 +45,6 @@ module FileStore
       cdn_hostname.presence && url[cdn_hostname]
     end
 
-    def azure_blob_container
-      GlobalSetting.use_azure? ? GlobalSetting.azure_blob_storage_container_name : SiteSetting.azure_blob_storage_container_name
-    end
-
     def absolute_base_url
       @absolute_base_url ||= SiteSetting.Upload.absolute_base_url
     end
@@ -63,7 +59,7 @@ module FileStore
     end
 
     def azure_blob_storage_cdn_url
-      GlobalSetting.use_azure? ? GlobalSetting.azure_blob_storage_cdn_url : SiteSetting.azure_blob_storage_cdn_url
+      GlobalSetting.use_azure_with_cdn? ? GlobalSetting.azure_blob_storage_cdn_url : SiteSetting.azure_blob_storage_cdn_url
     end
 
     def cdn_url(url)
