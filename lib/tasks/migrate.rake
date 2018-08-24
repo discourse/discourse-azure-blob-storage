@@ -3,7 +3,7 @@ require "digest/sha1"
 require "base62"
 
 task "uploads:migrate_to_azure_blob" => :environment do
-  require File.expand_path("../../azure_blob_helper.rb", __FILE__)
+  require File.expand_path("../../azure_blob_store.rb", __FILE__)
   require "file_store/local_store"
 
   ENV["RAILS_DB"] ? migrate_to_azure_blob : migrate_to_azure_blob_all_sites
