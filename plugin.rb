@@ -31,9 +31,13 @@ after_initialize do
       super
     end
 
+    def azure_helper
+      @azure_helper ||= AzureBlobHelper.new
+    end
+
     def enable_s3_uploads
       if SiteSetting.azure_blob_storage_enabled || GlobalSetting.use_azure?
-        @azure_helper ||= AzureBlobHelper.new
+        azure_helper
         return true
       else
         super
@@ -42,9 +46,9 @@ after_initialize do
 
     def s3_base_url
       if GlobalSetting.use_azure?
-        return "//#{GlobalSetting.azure_blob_storage_account_name}.blob.core.windows.net/#{@azure_helper.azure_blob_container}"
+        return "//#{GlobalSetting.azure_blob_storage_account_name}.blob.core.windows.net/#{azure_helper.azure_blob_container}"
       elsif SiteSetting.azure_blob_storage_enabled
-        return "//#{SiteSetting.azure_blob_storage_account_name}.blob.core.windows.net/#{@azure_helper.azure_blob_container}"
+        return "//#{SiteSetting.azure_blob_storage_account_name}.blob.core.windows.net/#{azure_helper.azure_blob_container}"
       end
 
       super
@@ -52,9 +56,9 @@ after_initialize do
 
     def absolute_base_url
       if GlobalSetting.use_azure?
-        return "//#{GlobalSetting.azure_blob_storage_account_name}.blob.core.windows.net/#{@azure_helper.azure_blob_container}"
+        return "//#{GlobalSetting.azure_blob_storage_account_name}.blob.core.windows.net/#{azure_helper.azure_blob_container}"
       elsif SiteSetting.azure_blob_storage_enabled
-        return "//#{SiteSetting.azure_blob_storage_account_name}.blob.core.windows.net/#{@azure_helper.azure_blob_container}"
+        return "//#{SiteSetting.azure_blob_storage_account_name}.blob.core.windows.net/#{azure_helper.azure_blob_container}"
       end
 
       super
