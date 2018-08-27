@@ -27,32 +27,6 @@ class AzureBlobHelper
     end
   end
 
-  def ensure_cors!
-    rule = nil
-
-    begin
-      rule = blob_service.get_service_properties.cors.cors_rules
-    rescue Azure::Core::Http::HTTPError => ex
-      puts "Status: #{ex.status_code}, Description: #{ex.description}"
-      puts "Exception: #{ex}"
-    end
-
-    cors_rule = Azure::Storage::Common::Service::CorsRule.new
-    cors_rule.allowed_origins = ["*"]
-    cors_rule.allowed_methods = %w(HEAD GET)
-    cors_rule.allowed_headers = ["Authorization"]
-    cors_rule.max_age_in_seconds = 3000
-
-    service_properties = Azure::Storage::Common::Service::StorageServiceProperties.new
-    service_properties.cors.cors_rules = [cors_rule]
-
-    unless rule.nil?
-      puts "installing CORS rule"
-
-      blob_service.set_service_properties(service_properties)
-    end
-  end
-
   def azure_blob_container
     GlobalSetting.use_azure? ? GlobalSetting.azure_blob_storage_container_name : SiteSetting.azure_blob_storage_container_name
   end
