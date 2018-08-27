@@ -31,7 +31,6 @@ end
 
 task 'azure:upload_assets' => :environment do
   ensure_azure_storage_configured!
-  azure_helper.ensure_cors!
 
   assets.each do |asset|
     upload_asset(*asset)
