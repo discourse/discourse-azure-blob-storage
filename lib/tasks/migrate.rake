@@ -15,8 +15,8 @@ end
 
 def migrate_to_azure_blob
   # make sure azure blob storage is enabled
-  if !SiteSetting.azure_blob_storage_enabled
-    puts "You must enable discourse-azure-blob-storage plugin before running this task"
+  unless SiteSetting.azure_blob_storage_enabled || GlobalSetting.use_azure?
+    puts "Please enable discourse-azure-blob-storage plugin or define required ENV variables before running this task"
     return
   end
 
