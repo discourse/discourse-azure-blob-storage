@@ -10,7 +10,7 @@ describe FileStore::AzureStore do
   let(:optimized_image_file) { file_from_fixtures("logo.png") }
   let(:azure_account) { "azure-blob-account-name" }
   let(:blob_container) { "azure-blob-container-name" }
-  let(:blob_service) { Azure::Blob::BlobService }
+  let(:blob_service) { Azure::Storage::Blob::BlobService }
 
   before(:each) do
     SiteSetting.azure_blob_storage_account_name = "azure-blob-account-name"
@@ -42,6 +42,28 @@ describe FileStore::AzureStore do
         expect(store.store_optimized_image(optimized_image_file, optimized_image)).to eq(
           "//azure-blob-account-name.blob.core.windows.net/azure-blob-container-name/#{path}"
         )
+      end
+
+      it "recreates optimized image for new version" do
+        version = 1
+        path = "optimized/1X/#{upload.sha1}_#{version}_20x20.png"
+        schemeless_url = "//#{azure_account}.blob.core.windows.net/#{blob_container}/#{path}"
+        optimized = Fabricate(:optimized_image,
+          upload: upload,
+          version: nil,
+          url: schemeless_url,
+          width: 20,
+          height: 20
+        )
+        old_url = "https:#{schemeless_url}"
+        new_url = old_url.sub("#{version}_20x20", "#{OptimizedImage::VERSION}_20x20")
+
+        stub_request(:put, old_url.sub("/optimized/", "/tombstone/optimized/"))
+        stub_request(:delete, old_url)
+        stub_request(:put, new_url)
+
+        new_optimized = upload.get_optimized_image(20, 20, allow_animation: SiteSetting.allow_animated_avatars)
+        expect("https:#{new_optimized.url}").to eq(new_url)
       end
     end
   end
