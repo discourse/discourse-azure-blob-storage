@@ -34,6 +34,8 @@ module FileStore
               source_blob_name)
       # delete the file
       blob_service.delete_blob(azure_blob_container, source_blob_name)
+    rescue StandardError => exception
+      Rails.logger.warn("Blob can not be moved to tombstone: #{exception}\nUrl: #{url}\nBlob: #{source_blob_name}")
     end
 
     def has_been_uploaded?(url)
