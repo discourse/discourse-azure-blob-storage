@@ -149,4 +149,28 @@ describe FileStore::AzureStore do
       assert_path("https://hello", nil)
     end
   end
+
+  describe ".url_for" do
+    def assert_url(url, expected)
+      upload = Upload.new(url: url)
+
+      url = store.url_for(upload)
+      expected = FileStore::LocalStore.new.url_for(upload) if expected
+
+      expect(url).to eq(expected)
+    end
+
+    it "returns url from upload" do
+      test = "//example.com/path/file.ext"
+      upload = Upload.new(url: test)
+      url = store.url_for(upload)
+      expect(url).to eq(test)
+    end 
+    it "adds rscd param to url" do
+      test = "//example.com/path/file.ext"
+      upload = Upload.new(url: test)
+      url = store.url_for(upload, force_download: true)
+      expect(url).to eq(test + '?rscd=file;%20attachment')
+    end 
+  end
 end
