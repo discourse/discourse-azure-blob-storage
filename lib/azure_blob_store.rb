@@ -83,11 +83,9 @@ module FileStore
       if force_download
         uri = URI.parse(upload.url)
         uri.query = [uri.query, "rscd=file;%20attachment"].compact.join('&')
-        url = uri.to_s
-      else
-        url = upload.url
+        return uri.to_s
       end
-      url
+      upload.url
     end
 
     def external?
