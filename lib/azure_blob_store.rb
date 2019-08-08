@@ -79,12 +79,7 @@ module FileStore
       url.sub("#{schema}#{absolute_base_url}", SiteSetting.azure_cdn_url)
     end
 
-    def url_for(upload, force_download: false)
-      if force_download
-        uri = URI.parse(upload.url)
-        uri.query = [uri.query, "rscd=file;%20attachment"].compact.join('&')
-        return uri.to_s
-      end
+    def url_for(upload)
       upload.url
     end
 
