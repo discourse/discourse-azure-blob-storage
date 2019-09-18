@@ -85,7 +85,7 @@ module FileStore
     
     def download_url(upload)
       return unless upload
-      "#{upload.short_path}?dl=1"
+      "#{upload.short_path}"
     end
     
     def external?
