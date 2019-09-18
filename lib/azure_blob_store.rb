@@ -82,7 +82,12 @@ module FileStore
     def url_for(upload, force_download: false)
       upload.url
     end
-
+    
+    def download_url(upload)
+      return unless upload
+      "#{upload.short_path}?dl=1"
+    end
+    
     def external?
       true
     end
