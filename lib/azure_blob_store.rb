@@ -7,7 +7,7 @@ module FileStore
       store_file(file, path, content_type: content_type, filename: upload.original_filename, cache_locally: true)
     end
 
-    def store_optimized_image(file, optimized_image, content_type = nil)
+    def store_optimized_image(file, optimized_image, content_type = nil, secure: false)
       path = get_path_for_optimized_image(optimized_image)
       store_file(file, path, content_type: content_type)
     end
