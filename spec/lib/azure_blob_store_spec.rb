@@ -149,4 +149,19 @@ describe FileStore::AzureStore do
       assert_path("https://hello", nil)
     end
   end
+
+  describe ".url_for" do
+    it "returns url from upload" do
+      test = "//example.com/path/file.ext"
+      upload = Upload.new(url: test)
+      url = store.url_for(upload)
+      expect(url).to eq(test)
+    end
+    it "accepts force_download parameter" do
+      test = "//example.com/path/file.ext"
+      upload = Upload.new(url: test)
+      url = store.url_for(upload, force_download: true)
+      expect(url).to eq(test)
+    end 
+  end
 end

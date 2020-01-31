@@ -79,6 +79,15 @@ module FileStore
       url.sub("#{schema}#{absolute_base_url}", SiteSetting.azure_cdn_url)
     end
 
+    def url_for(upload, force_download: false)
+      upload.url
+    end
+    
+    def download_url(upload)
+      return unless upload
+      "#{upload.short_path}"
+    end
+    
     def external?
       true
     end
