@@ -7,7 +7,7 @@ module FileStore
       store_file(file, path, content_type: content_type, filename: upload.original_filename, cache_locally: true)
     end
 
-    def store_optimized_image(file, optimized_image, content_type = nil)
+    def store_optimized_image(file, optimized_image, content_type = nil, secure: false)
       path = get_path_for_optimized_image(optimized_image)
       store_file(file, path, content_type: content_type)
     end
@@ -21,6 +21,8 @@ module FileStore
       options[:content_disposition] = "attachment; filename*=UTF-8''#{URI.encode(filename)}" unless FileHelper.is_supported_image?(filename)
       blob_service.create_block_blob(azure_blob_container, path, file, options)
       "#{absolute_base_url}/#{azure_blob_container}/#{path}"
+    rescue StandardError => exception
+      Rails.logger.error("Blob can not be stored: #{exception}\nUrl: #{absolute_base_url}/#{azure_blob_container}/#{path}")
     end
 
     def remove_file(url, path)
