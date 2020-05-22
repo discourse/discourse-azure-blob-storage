@@ -8,9 +8,9 @@ require "file_store/base_store"
 
 # GEMS
 gem 'faraday_middleware', '1.0.0', {require: false}
-gem 'azure-core', '0.1.13', {require: false}
-gem 'azure-storage-common', '1.0.1', {require: false}
-gem 'azure-storage-blob', '1.0.1', {require: false}
+# gem 'azure-core', '0.1.13', {require: false}
+gem 'azure-storage-common', '2.0.1', {require: false}
+gem 'azure-storage-blob', '2.0.0', {require: false}
 
 require 'azure/storage/blob'
 
