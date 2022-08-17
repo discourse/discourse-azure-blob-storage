@@ -62,7 +62,7 @@ describe FileStore::AzureStore do
         stub_request(:delete, old_url)
         stub_request(:put, new_url)
 
-        new_optimized = upload.get_optimized_image(20, 20, allow_animation: SiteSetting.allow_animated_avatars)
+        new_optimized = upload.get_optimized_image(20, 20)
         expect("https:#{new_optimized.url}").to eq(new_url)
       end
     end
@@ -84,13 +84,6 @@ describe FileStore::AzureStore do
     end
 
     describe "#remove_optimized_image" do
-      let(:optimized_image) do
-        Fabricate(:optimized_image,
-          url: "//azure-blob-account-name.blob.core.windows.net/optimized/1X/#{upload.sha1}_1_100x200.png",
-          upload: upload
-        )
-      end
-
       it "removes the file from Azure storage with the right paths" do
         store.expects(:get_depth_for).with(optimized_image.upload.id).returns(0)
         store.expects(:has_been_uploaded?).returns(true)
@@ -162,6 +155,6 @@ describe FileStore::AzureStore do
       upload = Upload.new(url: test)
       url = store.url_for(upload, force_download: true)
       expect(url).to eq(test)
-    end 
+    end
   end
 end

@@ -7,16 +7,23 @@
 require "file_store/base_store"
 
 # GEMS
-gem 'faraday_middleware', '1.0.0', {require: false}
-gem 'net-http-persistent', '4.0.0', {require: false}
-gem 'azure-storage-common', '2.0.2', {require: false}
-gem 'azure-storage-blob', '2.0.1', {require: false}
+gem 'net-http-persistent', '4.0.1', { require: true, require_name: "net/http/persistent" }
+gem 'faraday_middleware', '1.2.0', { require: false }
+gem 'azure-storage-common', '2.0.4', { require: false }
+gem 'azure-storage-blob', '2.0.3', { require: false }
 
 require 'azure/storage/blob'
 
 enabled_site_setting :azure_blob_storage_enabled
 
 after_initialize do
+  class ::Faraday::Adapter::NetHttpPersistent
+    def self.new(*)
+      self.load_error = nil
+
+      super
+    end
+  end
 
   SiteSetting::Upload.class_eval do
     class << self
